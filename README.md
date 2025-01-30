@@ -95,7 +95,7 @@ df = df.select([x.lower() for x in df.columns])
 
 **3. Armazenar os dados**
 
-Apos as pequena mudancas acima, salvamos os dados em csv.
+Apos as pequenas mudancas acima, salvamos os dados em csv.
 
 ```{Python}:
 df.coalesce(1) \
