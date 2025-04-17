@@ -258,3 +258,72 @@ df.coalesce(1) \
 - option: indicamos que queremos cabecalhos (colunas)
 - mode :  indicamos o comportamento, caso  o destino/arquivo ja exista(se tiver vai excluir o anterior e salvar o novo)
 - csv:  indicamos o formato e o nome do arquivo
+
+
+
+# SQL na AWS - Processando Parquet no S3 com Athena
+
+Nesse projeto extraimos um dataset (filmes e serie da netflix), fizemos a conversao do csv para parquet e json (para fins de comparativo de tamanho), subimos o arquivo parquet pro s3 (*via python).
+
+Apos etapa de codigo, dentro da AWS, criamos uma database, onde podemos associar o arquivo do s3 para um tabela, criamos um crawler que ler nosso arquivo que esta no s3, e rodamos para que o Athena leia.
+
+ ## Bibliotecas Utilizadas
+
+ - Pandas
+ - Requests
+ - Os
+ - Base64
+ - dotEnv
+
+## Etapas
+
+1. Criação do ambiente
+2. Carregar CSV > Processar > Transformar em DataFrame > Transformar em Parquet > Enviar para S3
+3. Dentro do S3, definir schema com o Glue
+4. Ler dados com Athena
+
+
+## Desenvolvimento de cada etapa
+
+**Etapa 1: Criação do ambiente**
+O que fazemos:
+Preparamos o ambiente necessário para processar os dados. Isso inclui configurar bibliotecas, criar diretórios para saída de arquivos e configurar o cliente AWS S3 para interagir com o bucket.
+
+No código:
+
+O módulo boto3 é usado para criar um cliente S3 (s3 = boto3.client('s3')).
+O diretório de saída é criado com os.makedirs(output_dir, exist_ok=True)
+
+![Criacao do Bucket](image.png)
+
+**
+**Etapa 2: Carregar CSV > Processar > Transformar em DataFrame > Transformar em Parquet > Enviar para S3**
+O que fazemos:
+
+Carregar CSV: Lemos o arquivo CSV para um DataFrame do Pandas.
+Processar: Realizamos transformações ou validações nos dados (não há transformações explícitas no código atual, mas o DataFrame é manipulado).
+Transformar em Parquet: Convertendo o DataFrame para o formato Parquet, que é mais eficiente para armazenamento e consulta.
+Enviar para S3: O arquivo Parquet gerado é enviado para um bucket no S3.
+No código:
+
+O CSV é carregado com pd.read_csv(csv_file).
+O DataFrame é convertido para Parquet usando pa.Table.from_pandas(df) e pq.write_table(table, parquet_file).
+O arquivo Parquet é enviado para o S3 com s3.upload_file(parquet_file, bucket_name, s3_key).
+
+![alt text](image-1.png)
+
+
+**Etapa 3: Dentro do S3, definir schema com o Glue**
+O que fazemos:
+No AWS Glue, criamos um catálogo de dados que define o esquema (colunas, tipos de dados, etc.) do arquivo Parquet armazenado no S3. Isso permite que ferramentas como o Athena consultem os dados.
+
+![alt text](image-2.png)
+
+**Etapa 4: Ler dados com Athena**
+O que fazemos:
+Usamos o AWS Athena para consultar os dados armazenados no S3. O Athena utiliza o esquema definido no Glue para interpretar os dados no formato Parquet.
+
+![alt text](image-3.png)
+
+
+
